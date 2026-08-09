@@ -4,13 +4,14 @@ from app.database import Base
 from sqlalchemy.orm import relationship
 
 class Subject(Base):
-   __tablename__ = "subject"
+   __tablename__ = "subjects"
 
    id = Column(Integer, primary_key=True, index=True)
    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
    name  = Column (String, nullable=False)
    code = Column(String, nullable=True)
    credits = Column(Integer, nullable=True)
+   faculty_name = Column(String, nullable=True)
    created_at =Column(DateTime(timezone=True), server_default=func.now())
 
    owner = relationship("User")
