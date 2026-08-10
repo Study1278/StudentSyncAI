@@ -70,4 +70,14 @@ class ExamOut(BaseModel):
     class Config:
         from_attributes = True
 
+class SkillCreate(BaseModel):
+    name:str
+    proficiency:str | None= "beginner"
 
+class SkillOut(BaseModel):
+    id: int
+    name:str
+    proficiency:str
+
+    class Config:
+        from_attributes = True
