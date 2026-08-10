@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -6,6 +6,7 @@ from app import models, schemas
 from app.auth import verify_token
 
 router = APIRouter(prefix="/internships", tags=["Internships"])
+
 
 def get_db():
     db = SessionLocal()
@@ -43,3 +44,30 @@ def get_my_internships(
     user_id = payload.get("user_id")
     internships = db.query(models.Internship).filter(models.Internship.user_id == user_id).all()
     return internships
+
+@router.patch("/{internship_id}", response_model=schemas.InternshipOut)
+def update_internship(
+    internship_id: int,
+    updates: schemas.InternshipUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    internship = db.query(models.Internship).filter(
+        models.Internship.id == internship_id,
+        models.Internship.user_id == user_id
+    ).first()
+
+    if not internship:
+        raise HTTPException(status_code=404, detail="Internship not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(internship, field, value)
+
+    db.commit()
+    db.refresh(internship)
+
+    return internship

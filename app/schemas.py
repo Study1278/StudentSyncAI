@@ -110,3 +110,8 @@ class InternshipOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class InternshipUpdate(BaseModel):
+    company_name: str | None = None
+    role: str | None = None
+    status: ApplicationStatus | None = None
