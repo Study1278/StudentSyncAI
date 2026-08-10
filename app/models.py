@@ -25,3 +25,18 @@ class User(Base):
    hashed_password = Column(String, nullable=False)
    role = Column(String, default="user")
    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Assignment(Base):
+   __tablename__ = "assignments"
+   id = Column(Integer, primary_key=True, index=True)
+   subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
+   title = Column(String, nullable=False)
+   description = Column(String, nullable=True)
+   due_date = Column(DateTime(timezone=True), nullable=True)
+   status = Column(String, default="pending")
+   created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+   subject = relationship("Subject")
+
+

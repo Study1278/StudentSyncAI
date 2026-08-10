@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 class UserCreate(BaseModel):
     name : str
@@ -30,6 +31,23 @@ class SubjectOut(BaseModel):
     code: str | None
     credits: int | None
     faculty_name: str | None
+
+class Config:
+    from_attributes = True
+
+class AssignmentCreate(BaseModel):
+    subject_id: int
+    title: str
+    description: str | None=None
+    due_date: datetime |None=None
+
+class AssignmentOut(BaseModel):
+    id: int
+    subject_id: int
+    title: str
+    description: str | None
+    due_date: datetime | None
+    status: str
 
 class Config:
     from_attributes = True
