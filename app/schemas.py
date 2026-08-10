@@ -49,5 +49,25 @@ class AssignmentOut(BaseModel):
     due_date: datetime | None
     status: str
 
-class Config:
-    from_attributes = True
+    class Config:
+        from_attributes = True
+
+
+class ExamCreate(BaseModel):
+    subject_id:int 
+    title:str
+    exam_date: datetime 
+    syllabus:str | None=None
+
+
+class ExamOut(BaseModel):
+    id: int
+    subject_id: int
+    title: str
+    exam_date: datetime |None
+    syllabus:str
+
+    class Config:
+        from_attributes = True
+
+

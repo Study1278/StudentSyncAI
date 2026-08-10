@@ -39,4 +39,13 @@ class Assignment(Base):
 
    subject = relationship("Subject")
 
+class Exam(Base):
+   __tablename__ = "exams"
+   id = Column(Integer, primary_key=True, index=True)
+   subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
+   title = Column(String, nullable=False)
+   exam_date= Column(DateTime(timezone=True), nullable=False)
+   syllabus= Column(String, nullable=True)
+   created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+   exam = relationship("Subject")
