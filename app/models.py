@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app.database import Base
 from sqlalchemy.orm import relationship
+import enum
+from sqlalchemy import Enum as SqlEnum
 
 class Subject(Base):
    __tablename__ = "subjects"
@@ -70,5 +72,24 @@ class CareerGoal(Base):
     target_role = Column(String, nullable=False)
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner = relationship("User")
+
+
+class ApplicationStatus(str, enum.Enum):
+    applied = "applied"
+    interview = "interview"
+    selected = "selected"
+    rejected = "rejected"
+
+class Internship(Base):
+    __tablename__ = "internships"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    company_name = Column(String, nullable=False)
+    role = Column(String, nullable=False)
+    status = Column(SqlEnum(ApplicationStatus), default=ApplicationStatus.applied)
+    applied_date = Column(DateTime(timezone=True), server_default=func.now())
 
     owner = relationship("User")

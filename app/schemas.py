@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from app.models import ApplicationStatus
 
 class UserCreate(BaseModel):
     name : str
@@ -91,6 +92,21 @@ class CareerGoalOut(BaseModel):
     id: int
     target_role: str
     description: str | None
+
+    class Config:
+        from_attributes = True
+
+class InternshipCreate(BaseModel):
+    company_name: str
+    role: str
+    status: ApplicationStatus | None = ApplicationStatus.applied
+
+class InternshipOut(BaseModel):
+    id: int
+    company_name: str
+    role: str
+    status: ApplicationStatus
+    applied_date: datetime
 
     class Config:
         from_attributes = True

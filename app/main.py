@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.database import engine, Base
 from app import models
-from app.routers import subjects, assignments, users, exams, skills, career_goals
+from app.routers import subjects, assignments, users, exams, skills, career_goals, internships
 from sqlalchemy import text
 
 Base.metadata.create_all(bind=engine)
@@ -19,6 +19,8 @@ app.include_router(exams.router)
 app.include_router(skills.router)
 
 app.include_router(career_goals.router)
+
+app.include_router(internships.router)
 
 
 @app.get("/")
