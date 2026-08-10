@@ -60,3 +60,15 @@ class Skill(Base):
    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
    owner = relationship("User")
+
+
+class CareerGoal(Base):
+    __tablename__ = "career_goals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    target_role = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    owner = relationship("User")

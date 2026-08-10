@@ -81,3 +81,16 @@ class SkillOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CareerGoalCreate(BaseModel):
+    target_role: str
+    description: str | None = None
+
+class CareerGoalOut(BaseModel):
+    id: int
+    target_role: str
+    description: str | None
+
+    class Config:
+        from_attributes = True
