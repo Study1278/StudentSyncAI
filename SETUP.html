@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudentSync AI — Setup Guide</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161922; --text:#e6e8ee; --muted:#a3a9b8;
+    --accent:#6ea8fe; --good:#4caf82; --border:#2a2f3a; --code-bg:#1c202b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:48px 24px 96px;}
+  header.title{border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:32px;}
+  header.title h1{font-size:1.8rem; margin:0 0 8px;}
+  header.title p{color:var(--muted); margin:0;}
+  h2{
+    font-size:1.3rem; margin-top:44px; margin-bottom:14px;
+    padding-bottom:8px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:50%; background:var(--accent);
+    color:#0f1115; font-weight:700; font-size:0.9rem; flex-shrink:0;
+  }
+  code{
+    background:var(--code-bg); padding:2px 6px; border-radius:4px;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:0.9em; color:#ffd479;
+  }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; font-size:0.88rem;
+  }
+  pre code{background:none; padding:0; color:#cfe3ff;}
+  table{width:100%; border-collapse:collapse; margin:16px 0; font-size:0.92rem;}
+  th,td{border:1px solid var(--border); padding:10px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--panel); color:var(--accent);}
+  tr:nth-child(even){background:rgba(255,255,255,0.02);}
+  a{color:var(--accent);}
+  .warn{
+    border-left:3px solid #e0a13c; background:rgba(224,161,60,0.08);
+    padding:10px 16px; border-radius:0 6px 6px 0; margin:16px 0;
+  }
+  ol,ul{padding-left:22px;}
+  li{margin:6px 0;}
+  hr{border:none; border-top:1px solid var(--border); margin:40px 0;}
+  .footer-note{color:var(--muted); font-style:italic; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>StudentSync AI — Setup Guide (Fresh Machine)</h1>
+  <p>Follow these steps in order on a brand-new Windows laptop with nothing installed. Every command is copy-pasteable into PowerShell or the VS Code terminal.</p>
+</header>
+
+<h2><span class="step-num">1</span> Install the required tools</h2>
+<p>Skip any step where the tool is already installed.</p>
+<table>
+<tr><th>Tool</th><th>Download from</th><th>Check it worked</th></tr>
+<tr><td>Python 3.12+</td><td><a href="https://python.org/downloads">python.org/downloads</a> — check "Add Python to PATH" during install</td><td><code>python --version</code></td></tr>
+<tr><td>VS Code</td><td><a href="https://code.visualstudio.com">code.visualstudio.com</a></td><td>Opens without error</td></tr>
+<tr><td>Git</td><td><a href="https://git-scm.com/download/win">git-scm.com/download/win</a> — default options</td><td><code>git --version</code></td></tr>
+<tr><td>GitHub account</td><td><a href="https://github.com">github.com</a></td><td>—</td></tr>
+</table>
+<p>Also install the <strong>Python extension</strong> inside VS Code: Extensions panel (left sidebar) → search "Python" (by Microsoft) → Install.</p>
+
+<h2><span class="step-num">2</span> Get the project onto your machine</h2>
+<p>Open a terminal (VS Code → Terminal → New Terminal), navigate to wherever you want the project folder, then:</p>
+<pre><code>git clone https://github.com/Study1278/StudentSyncAI.git
+cd StudentSyncAI</code></pre>
+<p>Then open this folder in VS Code: <code>File &gt; Open Folder</code> → select <code>StudentSyncAI</code>.</p>
+
+<h2><span class="step-num">3</span> Create and activate a virtual environment</h2>
+<pre><code>python -m venv venv</code></pre>
+<p><strong>Windows PowerShell activation:</strong></p>
+<pre><code>venv\Scripts\activate</code></pre>
+<p>If you get a "running scripts is disabled" error, run this first, then try activating again:</p>
+<pre><code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></pre>
+<p>You should see <code>(venv)</code> appear at the start of your terminal line — this means it worked.</p>
+<div class="warn"><strong>Important:</strong> <code>venv</code> stores absolute file paths internally. If you ever move or rename the project folder, delete <code>venv</code> (<code>Remove-Item -Recurse -Force venv</code>) and recreate it fresh with the two commands above — don't try to reuse a moved one.</div>
+
+<h2><span class="step-num">4</span> Install all project dependencies</h2>
+<p>With <code>(venv)</code> active:</p>
+<pre><code>pip install -r requirements.txt</code></pre>
+<p>This reads <code>requirements.txt</code> and installs every package at the exact version this project was built with — no guessing, no version conflicts.</p>
+
+<h2><span class="step-num">5</span> Set up your environment secrets</h2>
+<p>Create a new file in the project root named exactly <code>.env</code> (no filename before the dot). It is never included in the GitHub repo (see <code>.gitignore</code>), so you must create it fresh every time you set up on a new machine.</p>
+<p>Paste this template in, then fill in your own values:</p>
+<pre><code>DATABASE_URL=your_postgresql_connection_string_here
+SECRET_KEY=your_random_secret_key_here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60</code></pre>
+
+<p><strong>Getting <code>DATABASE_URL</code>:</strong></p>
+<ul>
+<li>Go to <a href="https://neon.tech">neon.tech</a>, sign in (or create a free account)</li>
+<li>Open your project → click <strong>Connect</strong> → copy the full connection string</li>
+<li>If this is a brand-new database, your tables will be created automatically the first time you run the server (see Step 6)</li>
+</ul>
+
+<p><strong>Generating a fresh <code>SECRET_KEY</code>:</strong></p>
+<pre><code>python -c "import secrets; print(secrets.token_hex(32))"</code></pre>
+<p>Copy the output and paste it as your <code>SECRET_KEY</code> value.</p>
+
+<div class="warn">Never commit <code>.env</code> to GitHub, never share it, never paste it into a chat — it contains your database password and your JWT signing key.</div>
+
+<h2><span class="step-num">6</span> Run the server</h2>
+<pre><code>uvicorn app.main:app --reload</code></pre>
+<p>You should see:</p>
+<pre><code>Uvicorn running on http://127.0.0.1:8000
+Application startup complete.</code></pre>
+<p>This also automatically creates any missing database tables in your Neon database on first run (via <code>Base.metadata.create_all()</code> in <code>main.py</code>).</p>
+<p>Open your browser to:</p>
+<pre><code>http://127.0.0.1:8000/docs</code></pre>
+<p>This is the interactive API testing page (Swagger UI) — you can register a user, log in, and test every endpoint directly from here.</p>
+
+<h2><span class="step-num">7</span> Quick smoke test</h2>
+<ol>
+<li><code>POST /users/register</code> — create a test user</li>
+<li><code>POST /users/login</code> — log in, copy the <code>access_token</code> from the response</li>
+<li>Click the green <strong>Authorize</strong> button (top of the page) → paste the raw token → Authorize → Close</li>
+<li><code>GET /users/me</code> — should return your user info with a <code>200</code> status</li>
+</ol>
+<p>If all four steps succeed, your setup is fully working end to end.</p>
+
+<hr>
+
+<h2 style="border:none;">Common first-time issues</h2>
+<table>
+<tr><th>Problem</th><th>Fix</th></tr>
+<tr><td><code>python</code> not recognized</td><td>Python wasn't added to PATH during install — reinstall and check that box</td></tr>
+<tr><td><code>venv\Scripts\activate</code> fails with a script-disabled error</td><td>Run <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code> first</td></tr>
+<tr><td><code>ModuleNotFoundError</code> for any package</td><td>Make sure <code>(venv)</code> is active, then rerun <code>pip install -r requirements.txt</code></td></tr>
+<tr><td>Server starts but <code>/docs</code> shows a database error</td><td>Double check <code>DATABASE_URL</code> in <code>.env</code> — no quotes, no extra spaces; also confirm your Neon project is awake (free tier pauses after inactivity)</td></tr>
+<tr><td><code>git clone</code> fails</td><td>Check the repo URL is exactly right and the repo is public (or you have access)</td></tr>
+</table>
+
+<h2 style="border:none;">Daily workflow (after setup is done once)</h2>
+<p>Every time you come back to work on the project:</p>
+<pre><code>cd StudentSyncAI
+venv\Scripts\activate
+uvicorn app.main:app --reload</code></pre>
+<p>That's it — no need to reinstall anything unless you pulled new changes that added new dependencies (in that case, rerun <code>pip install -r requirements.txt</code> after pulling).</p>
+
+<hr>
+<p class="footer-note">Keep this file up to date as the project grows — if setup steps change, update this guide in the same commit.</p>
+
+</div>
+</body>
+</html>

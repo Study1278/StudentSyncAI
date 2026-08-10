@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StudentSync AI — Progress & Concepts</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161922; --text:#e6e8ee; --muted:#a3a9b8;
+    --accent:#6ea8fe; --good:#4caf82; --border:#2a2f3a; --code-bg:#1c202b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;
+  }
+  .wrap{max-width:880px; margin:0 auto; padding:48px 24px 96px;}
+  header.title{border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:32px;}
+  header.title h1{font-size:1.9rem; margin:0 0 12px;}
+  .meta{color:var(--muted); font-size:0.95rem;}
+  .meta strong{color:var(--text);}
+  h2{
+    font-size:1.35rem; margin-top:48px; margin-bottom:16px;
+    padding-bottom:8px; border-bottom:1px solid var(--border);
+  }
+  h3{font-size:1.1rem; margin-top:28px; color:var(--accent);}
+  p{color:var(--text);}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  code{
+    background:var(--code-bg); padding:2px 6px; border-radius:4px;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:0.9em; color:#ffd479;
+  }
+  pre{
+    background:var(--code-bg); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; font-size:0.85rem;
+  }
+  pre code{background:none; padding:0; color:#cfe3ff;}
+  table{width:100%; border-collapse:collapse; margin:16px 0; font-size:0.92rem;}
+  th,td{border:1px solid var(--border); padding:10px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--panel); color:var(--accent);}
+  tr:nth-child(even){background:rgba(255,255,255,0.02);}
+  .checklist li{list-style:none; margin-left:-22px; padding-left:0;}
+  .checklist{padding-left:22px;}
+  .check-yes::before{content:"✅ "; }
+  .check-no::before{content:"⬜ "; color:var(--muted);}
+  blockquote{
+    border-left:3px solid var(--accent); margin:16px 0; padding:8px 16px;
+    background:var(--panel); border-radius:0 6px 6px 0; color:var(--muted);
+  }
+  .warn{
+    border-left:3px solid #e0a13c; background:rgba(224,161,60,0.08);
+    padding:10px 16px; border-radius:0 6px 6px 0; margin:16px 0;
+  }
+  hr{border:none; border-top:1px solid var(--border); margin:40px 0;}
+  .footer-note{color:var(--muted); font-style:italic; margin-top:8px;}
+  a{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>StudentSync AI — Project Journal &amp; Backend Developer Reference</h1>
+  <div class="meta">
+    <strong>Project:</strong> AI-Powered Academic &amp; Career Assistant for Students<br>
+    <strong>Formerly:</strong> AppointAI — pivoted early, before any domain-specific code was built, so the entire auth foundation carried over unchanged<br>
+    <strong>Stack:</strong> Python (FastAPI) + PostgreSQL (Neon) + SQLAlchemy ORM + JWT Auth + React (frontend, upcoming)<br>
+    <strong>Student:</strong> B.Tech CSE (Data Science), 2nd year<br>
+    <strong>Goal:</strong> Learn real backend development end-to-end — not just submit a working demo, but understand every line<br>
+    <strong>GitHub:</strong> <code>Study1278/StudentSyncAI</code>
+  </div>
+</header>
+
+<h2>📁 Every file, and exactly what it does</h2>
+<p>This is the map — whenever you're confused about "why does this project have so many files," come back here.</p>
+<table>
+<tr><th>File</th><th>Purpose</th><th>What actually happens inside it</th></tr>
+<tr><td><code>main.py</code></td><td>Entry point. Wires the whole app together.</td><td>Imports the database engine + all models, runs <code>Base.metadata.create_all(bind=engine)</code> (creates any DB tables that don't exist yet), creates the <code>FastAPI()</code> app object, registers every router (<code>include_router</code>), and defines the 2 basic test routes (<code>/</code> and <code>/test-db</code>). No business logic lives here.</td></tr>
+<tr><td><code>database.py</code></td><td>The only file that knows how to connect to PostgreSQL.</td><td>Loads <code>.env</code>, reads <code>DATABASE_URL</code>, creates the SQLAlchemy <code>engine</code>, creates <code>SessionLocal</code> (a factory that produces new DB sessions per request), and defines <code>Base</code> (the class every table model inherits from).</td></tr>
+<tr><td><code>models.py</code></td><td>Defines every database table as a Python class.</td><td>Each <code>class X(Base):</code> becomes a real PostgreSQL table when <code>create_all()</code> runs. Columns, data types, foreign keys, and defaults are all defined here — the single source of truth for your DB structure.</td></tr>
+<tr><td><code>schemas.py</code></td><td>Defines what data looks like going in/out of the API — deliberately separate from <code>models.py</code>.</td><td>Each feature gets a <code>...Create</code> schema (what the client must send) and an <code>...Out</code> schema (what we send back — never includes sensitive fields like <code>hashed_password</code>). Pydantic auto-validates incoming requests before your route code runs.</td></tr>
+<tr><td><code>auth.py</code></td><td>All JWT logic, isolated from the routes that use it.</td><td><code>create_access_token()</code> signs a new JWT after login. <code>verify_token()</code> is a FastAPI dependency that extracts + validates the token from the <code>Authorization</code> header on every protected request.</td></tr>
+<tr><td><code>routers/users.py</code></td><td>User-related endpoints.</td><td><code>/users/register</code>, <code>/users/login</code>, <code>/users/me</code></td></tr>
+<tr><td><code>routers/subjects.py</code></td><td>Subject CRUD, directly owned by a User.</td><td><code>POST /subjects/</code>, <code>GET /subjects/</code></td></tr>
+<tr><td><code>routers/assignments.py</code></td><td>Assignment CRUD, owned through a Subject.</td><td><code>POST /assignments/</code>, <code>GET /assignments/{subject_id}</code></td></tr>
+<tr><td><code>routers/exams.py</code></td><td>Exam CRUD, owned through a Subject.</td><td><code>POST /exams/</code>, <code>GET /exams/{subject_id}</code></td></tr>
+<tr><td><code>routers/skills.py</code></td><td>Skill CRUD, directly owned by a User.</td><td><code>POST /skills/</code>, <code>GET /skills/</code></td></tr>
+<tr><td><code>routers/career_goals.py</code></td><td>Career goal CRUD, directly owned by a User.</td><td><code>POST /career-goals/</code>, <code>GET /career-goals/</code></td></tr>
+<tr><td><code>routers/internships.py</code></td><td>Internship CRUD with Enum-restricted status.</td><td><code>POST /internships/</code>, <code>GET /internships/</code></td></tr>
+<tr><td><code>.env</code></td><td>Secret values, never committed to GitHub.</td><td><code>DATABASE_URL</code>, <code>SECRET_KEY</code>, <code>ALGORITHM</code>, <code>ACCESS_TOKEN_EXPIRE_MINUTES</code></td></tr>
+<tr><td><code>.gitignore</code></td><td>Tells Git what to never track.</td><td><code>venv/</code>, <code>__pycache__/</code>, <code>.env</code></td></tr>
+<tr><td><code>requirements.txt</code></td><td>Exact list of every package + version this project needs.</td><td>Generated via <code>pip freeze &gt; requirements.txt</code>. Anyone can rebuild your exact environment with <code>pip install -r requirements.txt</code>.</td></tr>
+</table>
+
+<p><strong>The dependency chain, visually:</strong></p>
+<pre><code>main.py
+  │
+  ├─ imports database.py  → gets: engine, Base, SessionLocal
+  ├─ imports models.py    → gets: User, Subject, Assignment, Exam, Skill, CareerGoal, Internship
+  ├─ imports routers/*    → gets: every endpoint, grouped by feature
+  └─ runs create_all()    → builds any missing tables in the real Neon database</code></pre>
+
+<hr>
+
+<h2>✅ Full feature checklist</h2>
+
+<h3>Foundation</h3>
+<ul class="checklist">
+<li class="check-yes">Local dev environment: Python, VS Code, Git, GitHub, <code>venv</code></li>
+<li class="check-yes">Free cloud PostgreSQL database (Neon)</li>
+<li class="check-yes">Multi-file FastAPI project structure</li>
+<li class="check-yes"><code>.env</code> + <code>python-dotenv</code> keeping secrets out of code and GitHub</li>
+<li class="check-yes"><code>requirements.txt</code> for reproducible installs</li>
+<li class="check-yes">Git commits after every working milestone, pushed to GitHub</li>
+</ul>
+
+<h3>Auth system</h3>
+<ul class="checklist">
+<li class="check-yes"><code>User</code> table (name, email, hashed_password, role, created_at)</li>
+<li class="check-yes"><strong>Registration</strong> (<code>POST /users/register</code>) — validates input, blocks duplicate emails, hashes password with bcrypt</li>
+<li class="check-yes"><strong>Login</strong> (<code>POST /users/login</code>) — verifies password against hash, issues a signed JWT</li>
+<li class="check-yes"><strong>JWT tokens</strong> — signed with a secret key, contain <code>user_id</code> + <code>role</code>, expire after 60 minutes</li>
+<li class="check-yes"><strong>Protected routes</strong> — require a valid <code>Authorization: Bearer &lt;token&gt;</code> header</li>
+</ul>
+
+<h3>Academic module</h3>
+<ul class="checklist">
+<li class="check-yes"><strong>Subject</strong> — directly owned by a User (name, code, credits, faculty_name)</li>
+<li class="check-yes"><strong>Assignment</strong> — owned through a Subject (title, description, due_date, status)</li>
+<li class="check-yes"><strong>Exam</strong> — owned through a Subject (title, exam_date, syllabus)</li>
+<li class="check-yes">Ownership verification pattern before creating Assignment/Exam</li>
+</ul>
+
+<h3>Career module</h3>
+<ul class="checklist">
+<li class="check-yes"><strong>Skill</strong> — directly owned by a User (name, proficiency)</li>
+<li class="check-yes"><strong>CareerGoal</strong> — directly owned by a User (target_role, description)</li>
+<li class="check-yes"><strong>Internship</strong> — directly owned by a User (company_name, role, status restricted via Enum)</li>
+</ul>
+
+<h3>Not yet built</h3>
+<ul class="checklist">
+<li class="check-no">PATCH/PUT (update) endpoints</li>
+<li class="check-no">DELETE endpoints</li>
+<li class="check-no">Study Task / Planner model</li>
+<li class="check-no">Dashboard/summary endpoint</li>
+<li class="check-no">Alembic migrations</li>
+<li class="check-no">React frontend</li>
+<li class="check-no">AI features</li>
+<li class="check-no">Voice assistant (optional stretch goal)</li>
+</ul>
+
+<hr>
+
+<h2>🧠 Every core concept you now understand</h2>
+
+<h3>1. The request-response cycle</h3>
+<pre><code>Client → HTTP Request → Backend route → Function runs → Response (JSON) → Client</code></pre>
+
+<h3>2. Why code is split into files</h3>
+<p>Separation of concerns: <code>main.py</code> wires things together, <code>database.py</code> owns the DB connection, <code>models.py</code> owns table structure, <code>schemas.py</code> owns API data shape, <code>routers/</code> group related endpoints.</p>
+
+<h3>3. ORM (Object-Relational Mapping)</h3>
+<p>SQLAlchemy lets you write Python classes instead of raw SQL. <code>class Subject(Base):</code> becomes an actual <code>CREATE TABLE subjects (...)</code> behind the scenes.</p>
+
+<h3>4. Dependency Injection</h3>
+<p>FastAPI runs a function (like <code>get_db</code> or <code>verify_token</code>) automatically before your route code, and hands you the result — no repeated logic in every function.</p>
+
+<h3>5. Pydantic schemas &amp; validation</h3>
+<p>Incoming data is checked against your <code>schemas.py</code> classes before your function runs. Bad data is auto-rejected with a <code>422</code> error.</p>
+
+<h3>6. Password hashing vs. encryption</h3>
+<ul>
+<li><strong>Encryption</strong> is reversible with a key. <strong>Hashing</strong> (bcrypt) is one-way, permanently.</li>
+<li>bcrypt <strong>salts</strong> every password — identical passwords produce different hashes.</li>
+<li>bcrypt is <strong>intentionally slow</strong>, making brute-force attacks impractical.</li>
+<li>"Online decrypters" don't decrypt — they guess-and-check weak passwords.</li>
+</ul>
+<blockquote>Never store plain passwords. Ever. In any project, for the rest of your career.</blockquote>
+
+<h3>7. JWT (JSON Web Tokens)</h3>
+<ul>
+<li>Format: <code>header.payload.signature</code> — readable by anyone, but tamper-proof because of the server-only secret key.</li>
+<li>On login: server creates and signs a token containing <code>user_id</code> + <code>role</code> + expiry.</li>
+<li>On future requests: client sends the token back; server verifies signature + expiry.</li>
+<li>A JWT is an <strong>ID card the server vouches for</strong> — not a secure storage container.</li>
+</ul>
+
+<h3>8. Foreign Keys &amp; relationships</h3>
+<p><code>ForeignKey("subjects.id")</code> tells the database "this column must reference a real row in the <code>subjects</code> table." <code>relationship("Subject")</code> is a Python-only convenience for accessing the related object directly.</p>
+
+<h3>9. Object-level authorization</h3>
+<p><strong>Shallow</strong> (Subject, Skill, CareerGoal, Internship): <code>user_id</code> sits directly on the table. <strong>Nested</strong> (Assignment, Exam): ownership is checked through the parent Subject first. Skipping this is a real vulnerability class called <strong>broken object-level authorization (BOLA)</strong>.</p>
+
+<h3>10. Vague login error messages</h3>
+<p>Both "email doesn't exist" and "wrong password" return the same generic <code>401</code> — prevents <strong>user enumeration attacks</strong>.</p>
+
+<h3>11. Enums for restricted values</h3>
+<p><code>Internship.status</code> can only be <code>applied</code> / <code>interview</code> / <code>selected</code> / <code>rejected</code> — enforced at both the Pydantic layer and the database layer.</p>
+
+<hr>
+
+<h2>🐛 Every real bug you've personally debugged</h2>
+<table>
+<tr><th>Bug</th><th>Root cause</th><th>Lesson</th></tr>
+<tr><td><code>ModuleNotFoundError: app.routers</code></td><td>Folder named <code>router</code> instead of <code>routers</code></td><td>Import paths must match folder names exactly</td></tr>
+<tr><td><code>NameError: name 'engine' is not defined</code></td><td>Missing/broken import</td><td>Always check what's actually imported at the top of the file</td></tr>
+<tr><td><code>TypeError</code> on <code>SessionLocal</code></td><td><code>autoFlush</code> instead of <code>autoflush</code></td><td>Python keyword arguments are case-sensitive</td></tr>
+<tr><td><code>ImportError: email-validator</code></td><td>Missing dependency for <code>EmailStr</code></td><td>Some features need extra packages beyond the main one</td></tr>
+<tr><td><code>KeyError: unknown CryptContext keyword 'schemas'</code></td><td>Typed <code>schemas=</code> instead of <code>schemes=</code></td><td>Easy to typo right after creating a file called schemas.py</td></tr>
+<tr><td><code>AttributeError: no attribute 'include_routers'</code></td><td>Plural instead of singular</td><td>Python often suggests the fix directly in the error</td></tr>
+<tr><td><code>NameError: name 'app' is not defined</code></td><td>Used <code>app</code> before <code>app = FastAPI()</code> ran</td><td>Python executes top to bottom — order matters</td></tr>
+<tr><td><code>AttributeError: no attribute 'User'</code></td><td>Class defined as <code>class user</code> (lowercase)</td><td>Python is case-sensitive: User ≠ user</td></tr>
+<tr><td><code>.has()</code> vs <code>.hash()</code></td><td>Simple typo</td><td>Always double check method names against docs</td></tr>
+<tr><td><code>bcrypt</code>/<code>passlib</code> version mismatch</td><td>Incompatible package versions</td><td>Library version conflicts are constant in backend dev — pin versions to fix</td></tr>
+<tr><td><code>jwt.decode()</code> TypeError</td><td><code>algorithm=</code> instead of <code>algorithms=</code> (plural)</td><td><code>jose</code>'s encode/decode inconsistently use singular vs plural</td></tr>
+<tr><td>Swagger showing username/password fields</td><td>Used <code>OAuth2PasswordBearer</code> instead of <code>HTTPBearer</code></td><td>Pick the security scheme that matches your actual endpoint</td></tr>
+<tr><td><code>websockets</code>/<code>asyncio.coroutine</code> crash</td><td>Outdated sub-dependency pulled in by <code>uvicorn[standard]</code></td><td>Errors deep inside an unfamiliar library = check for an outdated sub-dependency</td></tr>
+<tr><td><code>distutils</code> / ancient pydantic crash</td><td>Corrupted installs after a partial upgrade</td><td>A full clean reinstall with pinned versions beats chasing individual errors</td></tr>
+<tr><td><code>venv</code> broke after renaming project folder</td><td>Windows venvs store absolute paths internally</td><td>Renaming a project folder always requires rebuilding venv from scratch</td></tr>
+<tr><td><code>NoReferencedTableError</code></td><td><code>ForeignKey("subject.id")</code> singular vs real table <code>"subjects"</code></td><td>ForeignKey() needs the exact literal table name — no autocomplete catches this</td></tr>
+<tr><td><code>TypeError: invalid keyword argument</code></td><td>New column added to the DB migration but not to the Python class</td><td>Always double check new fields exist in both the model and the table</td></tr>
+<tr><td><code>UndefinedColumn</code> / <code>UndefinedTable</code></td><td>Old table under a wrong name still existed</td><td><code>create_all()</code> never modifies existing tables — orphaned old tables must be deleted manually</td></tr>
+<tr><td>Full restart needed even with <code>--reload</code></td><td><code>--reload</code> doesn't always re-run one-time startup logic</td><td>When something should have updated but didn't, try a full stop + restart</td></tr>
+<tr><td>Variable shadowing (<code>exam</code> reused for two things)</td><td>Reused the same variable name for two different things mid-function</td><td>Once a name is reassigned, the original value is gone</td></tr>
+<tr><td>Forgot <code>return new_object</code></td><td>Saving to the DB and returning it are two separate steps</td><td>Checklist: create → add → commit → refresh → return</td></tr>
+<tr><td><code>db.refresh(wrong_variable)</code></td><td>Refreshed the input schema instead of the new DB object</td><td>Always refresh the object you just added, not the raw input</td></tr>
+<tr><td>Pydantic <code>422</code> on invalid Enum value</td><td>Sent an invalid status string</td><td>This is validation working correctly, not a bug</td></tr>
+</table>
+
+<p><strong>Pattern across almost every bug:</strong> exact-spelling and exact-naming precision. Reading the <strong>last line of a traceback</strong> and the <strong>exact file/line number</strong> solves the vast majority of these.</p>
+
+<hr>
+
+<h2>🔑 Habits worth keeping permanently</h2>
+<ol>
+<li>Commit after every working feature — small, frequent commits beat one giant commit at the end.</li>
+<li><code>.env</code> never goes to GitHub — always sanity-check before pushing.</li>
+<li>Read tracebacks from the bottom up.</li>
+<li>Case sensitivity matters everywhere in Python.</li>
+<li>After renaming a class/file/table, search for every place that name is referenced.</li>
+<li>Full restart &gt; relying on <code>--reload</code> whenever structural changes are involved.</li>
+<li><code>create_all()</code> is a learning-stage tool — switch to Alembic before the project gets much bigger.</li>
+<li>Never store plain passwords. Always hash. Non-negotiable, forever.</li>
+<li>Re-read new class/function names letter by letter before saving.</li>
+</ol>
+
+<hr>
+
+<h2>🚀 Roadmap from here</h2>
+<pre><code>✅ Auth system (register, login, JWT, protected routes)
+✅ Academic module: Subject, Assignment, Exam
+✅ Career module: Skill, CareerGoal, Internship (Enum-validated status)
+⬜ PATCH/DELETE endpoints across all models
+⬜ Study Task / Planner model
+⬜ Dashboard/summary endpoint
+⬜ Alembic migrations
+⬜ React frontend
+⬜ AI features
+⬜ Voice assistant (optional)
+⬜ Deployment</code></pre>
+
+<p class="warn"><strong>Honest overall estimate:</strong> roughly 20-25% of the full project is done — but the hardest conceptual ground (auth, JWT, relational ownership, foreign keys) is already behind you.</p>
+
+<hr>
+<p class="footer-note">This document is a living reference — update it as the project grows. Re-read the bug table whenever something feels familiar; the patterns repeat.</p>
+
+</div>
+</body>
+</html>
