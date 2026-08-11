@@ -67,7 +67,50 @@ def get_exam_for_subject(
     return exam
 
 
+@router.patch("/{exam_id}", response_model=schemas.ExamOut)
+def update_exam(
+    exam_id: int,
+    updates: schemas.ExamUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
 
+    exam = db.query(models.Exam).join(models.Subject).filter(
+        models.Exam.id == exam_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(exam, field, value)
+
+    db.commit()
+    db.refresh(exam)
+    return exam
+
+@router.delete("/{exam_id}")
+def delete_exam(
+    exam_id: int,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    exam = db.query(models.Exam).join(models.Subject).filter(
+        models.Exam.id == exam_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not exam:
+        raise HTTPException(status_code=404, detail="Exam not found")
+
+    db.delete(exam)
+    db.commit()
+    return {"detail": "Exam deleted"}
 
         
 

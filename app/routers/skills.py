@@ -43,3 +43,50 @@ def get_my_skill(
     user_id = payload.get("user_id")
     skills = db.query(models.Skill).filter(models.Skill.user_id == user_id).all()
     return skills
+
+from fastapi import HTTPException
+
+@router.patch("/{skill_id}", response_model=schemas.SkillOut)
+def update_skill(
+    skill_id: int,
+    updates: schemas.SkillUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    skill = db.query(models.Skill).filter(
+        models.Skill.id == skill_id,
+        models.Skill.user_id == user_id
+    ).first()
+
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(skill, field, value)
+
+    db.commit()
+    db.refresh(skill)
+    return skill
+
+@router.delete("/{skill_id}")
+def delete_skill(
+    skill_id: int,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    skill = db.query(models.Skill).filter(
+        models.Skill.id == skill_id,
+        models.Skill.user_id == user_id
+    ).first()
+
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    db.delete(skill)
+    db.commit()
+    return {"detail": "Skill deleted"}

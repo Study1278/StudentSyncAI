@@ -17,6 +17,8 @@ class Subject(Base):
    created_at =Column(DateTime(timezone=True), server_default=func.now())
 
    owner = relationship("User")
+   assignments = relationship("Assignment", cascade="all, delete-orphan")
+   exams = relationship("Exam", cascade="all, delete-orphan")
    
 class User(Base):
    __tablename__ = "users"
@@ -32,7 +34,7 @@ class User(Base):
 class Assignment(Base):
    __tablename__ = "assignments"
    id = Column(Integer, primary_key=True, index=True)
-   subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
+   subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
    title = Column(String, nullable=False)
    description = Column(String, nullable=True)
    due_date = Column(DateTime(timezone=True), nullable=True)
@@ -44,13 +46,13 @@ class Assignment(Base):
 class Exam(Base):
    __tablename__ = "exams"
    id = Column(Integer, primary_key=True, index=True)
-   subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
+   subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
    title = Column(String, nullable=False)
    exam_date= Column(DateTime(timezone=True), nullable=False)
    syllabus= Column(String, nullable=True)
    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-   exam = relationship("Subject")
+   subject = relationship("Subject")
 
 class Skill(Base):
    __tablename__ = "skills"

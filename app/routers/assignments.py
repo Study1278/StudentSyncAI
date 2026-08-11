@@ -66,3 +66,47 @@ def get_assignment_for_subject(
 
     return assignments
 
+@router.patch("/{assignment_id}", response_model=schemas.AssignmentOut)
+def update_assignment(
+    assignment_id: int,
+    updates: schemas.AssignmentUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    assignment = db.query(models.Assignment).join(models.Subject).filter(
+        models.Assignment.id == assignment_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(assignment, field, value)
+
+    db.commit()
+    db.refresh(assignment)
+    return assignment
+
+@router.delete("/{assignment_id}")
+def delete_assignment(
+    assignment_id: int,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    assignment = db.query(models.Assignment).join(models.Subject).filter(
+        models.Assignment.id == assignment_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    db.delete(assignment)
+    db.commit()
+    return {"detail": "Assignment deleted"}

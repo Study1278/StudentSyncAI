@@ -45,3 +45,48 @@ def get_my_subjects(
     user_id =payload.get("user_id")
     subjects = db.query(models.Subject).filter(models.Subject.user_id == user_id).all()
     return subjects
+
+@router.patch("/{subject_id}", response_model=schemas.SubjectOut)
+def update_subject(
+    subject_id: int,
+    updates: schemas.SubjectUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    subject = db.query(models.Subject).filter(
+        models.Subject.id == subject_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not subject:
+        raise HTTPException(status_code=404, detail="Subject not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(subject, field, value)
+
+    db.commit()
+    db.refresh(subject)
+    return subject
+
+@router.delete("/{subject_id}")
+def delete_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    subject = db.query(models.Subject).filter(
+        models.Subject.id == subject_id,
+        models.Subject.user_id == user_id
+    ).first()
+
+    if not subject:
+        raise HTTPException(status_code=404, detail="Subject not found")
+
+    db.delete(subject)
+    db.commit()
+    return {"detail": "Subject deleted"}

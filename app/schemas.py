@@ -115,3 +115,28 @@ class InternshipUpdate(BaseModel):
     company_name: str | None = None
     role: str | None = None
     status: ApplicationStatus | None = None
+
+class SubjectUpdate(BaseModel):
+    name: str | None = None
+    code: str | None = None
+    credits: int | None = None
+    faculty_name: str | None = None
+
+class SkillUpdate(BaseModel):
+    name: str | None = None
+    proficiency: str | None = None
+
+class CareerGoalUpdate(BaseModel):
+    target_role: str | None = None
+    description: str | None = None
+
+class AssignmentUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    due_date: datetime | None = None
+    status: str | None = None
+
+class ExamUpdate(BaseModel):
+    title: str | None = None
+    exam_date: datetime | None = None
+    syllabus: str | None = None
