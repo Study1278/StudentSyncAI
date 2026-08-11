@@ -16,9 +16,8 @@ class Subject(Base):
    faculty_name = Column(String, nullable=True)
    created_at =Column(DateTime(timezone=True), server_default=func.now())
 
-   owner = relationship("User")
-   assignments = relationship("Assignment", cascade="all, delete-orphan")
-   exams = relationship("Exam", cascade="all, delete-orphan")
+assignments = relationship("Assignment", back_populates="subject", cascade="all, delete-orphan")
+exams = relationship("Exam", back_populates="subject", cascade="all, delete-orphan")
    
 class User(Base):
    __tablename__ = "users"
@@ -41,7 +40,7 @@ class Assignment(Base):
    status = Column(String, default="pending")
    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-   subject = relationship("Subject")
+subject = relationship("Subject", back_populates="assignments")
 
 class Exam(Base):
    __tablename__ = "exams"
@@ -52,7 +51,7 @@ class Exam(Base):
    syllabus= Column(String, nullable=True)
    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-   subject = relationship("Subject")
+subject = relationship("Subject", back_populates="exams")
 
 class Skill(Base):
    __tablename__ = "skills"

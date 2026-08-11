@@ -3,6 +3,7 @@ from app.database import engine, Base
 from app import models
 from app.routers import subjects, assignments, users, exams, skills, career_goals, internships
 from sqlalchemy import text
+from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,6 +23,13 @@ app.include_router(career_goals.router)
 
 app.include_router(internships.router)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():

@@ -18,8 +18,12 @@
   header.title{border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:32px;}
   header.title h1{font-size:1.8rem; margin:0 0 8px;}
   header.title p{color:var(--muted); margin:0;}
+  .section-label{
+    text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem;
+    color:var(--accent); margin-top:56px; margin-bottom:4px; font-weight:700;
+  }
   h2{
-    font-size:1.3rem; margin-top:44px; margin-bottom:14px;
+    font-size:1.3rem; margin-top:12px; margin-bottom:14px;
     padding-bottom:8px; border-bottom:1px solid var(--border);
     display:flex; align-items:center; gap:10px;
   }
@@ -28,6 +32,7 @@
     width:28px; height:28px; border-radius:50%; background:var(--accent);
     color:#0f1115; font-weight:700; font-size:0.9rem; flex-shrink:0;
   }
+  .step-num.fe{background:var(--good);}
   code{
     background:var(--code-bg); padding:2px 6px; border-radius:4px;
     font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
@@ -47,10 +52,17 @@
     border-left:3px solid #e0a13c; background:rgba(224,161,60,0.08);
     padding:10px 16px; border-radius:0 6px 6px 0; margin:16px 0;
   }
+  .good-box{
+    border-left:3px solid var(--good); background:rgba(76,175,130,0.08);
+    padding:10px 16px; border-radius:0 6px 6px 0; margin:16px 0;
+  }
   ol,ul{padding-left:22px;}
   li{margin:6px 0;}
   hr{border:none; border-top:1px solid var(--border); margin:40px 0;}
   .footer-note{color:var(--muted); font-style:italic; margin-top:8px;}
+  .two-col{display:flex; gap:16px; flex-wrap:wrap;}
+  .two-col > div{flex:1; min-width:260px; background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px 16px;}
+  .two-col h3{margin:0 0 8px; font-size:1rem; color:var(--accent);}
 </style>
 </head>
 <body>
@@ -58,14 +70,17 @@
 
 <header class="title">
   <h1>StudentSync AI — Setup Guide (Fresh Machine)</h1>
-  <p>Follow these steps in order on a brand-new Windows laptop with nothing installed. Every command is copy-pasteable into PowerShell or the VS Code terminal.</p>
+  <p>Follow these steps in order on a brand-new Windows laptop with nothing installed. Every command is copy-pasteable into PowerShell or the VS Code terminal. This covers both the backend (FastAPI) and the frontend (React).</p>
 </header>
+
+<div class="section-label">Part 1 — Backend</div>
 
 <h2><span class="step-num">1</span> Install the required tools</h2>
 <p>Skip any step where the tool is already installed.</p>
 <table>
 <tr><th>Tool</th><th>Download from</th><th>Check it worked</th></tr>
 <tr><td>Python 3.12+</td><td><a href="https://python.org/downloads">python.org/downloads</a> — check "Add Python to PATH" during install</td><td><code>python --version</code></td></tr>
+<tr><td>Node.js 22 LTS</td><td><a href="https://nodejs.org">nodejs.org</a> — download the LTS version</td><td><code>node -v</code> (should show v22.x or higher — v18 and older cause errors with newer frontend tooling)</td></tr>
 <tr><td>VS Code</td><td><a href="https://code.visualstudio.com">code.visualstudio.com</a></td><td>Opens without error</td></tr>
 <tr><td>Git</td><td><a href="https://git-scm.com/download/win">git-scm.com/download/win</a> — default options</td><td><code>git --version</code></td></tr>
 <tr><td>GitHub account</td><td><a href="https://github.com">github.com</a></td><td>—</td></tr>
@@ -76,7 +91,7 @@
 <p>Open a terminal (VS Code → Terminal → New Terminal), navigate to wherever you want the project folder, then:</p>
 <pre><code>git clone https://github.com/Study1278/StudentSyncAI.git
 cd StudentSyncAI</code></pre>
-<p>Then open this folder in VS Code: <code>File &gt; Open Folder</code> → select <code>StudentSyncAI</code>.</p>
+<p>Then open this folder in VS Code: <code>File &gt; Open Folder</code> → select <code>StudentSyncAI</code>. This one folder contains both the backend (<code>app/</code>) and the frontend (<code>frontend/</code>).</p>
 
 <h2><span class="step-num">3</span> Create and activate a virtual environment</h2>
 <pre><code>python -m venv venv</code></pre>
@@ -87,8 +102,8 @@ cd StudentSyncAI</code></pre>
 <p>You should see <code>(venv)</code> appear at the start of your terminal line — this means it worked.</p>
 <div class="warn"><strong>Important:</strong> <code>venv</code> stores absolute file paths internally. If you ever move or rename the project folder, delete <code>venv</code> (<code>Remove-Item -Recurse -Force venv</code>) and recreate it fresh with the two commands above — don't try to reuse a moved one.</div>
 
-<h2><span class="step-num">4</span> Install all project dependencies</h2>
-<p>With <code>(venv)</code> active:</p>
+<h2><span class="step-num">4</span> Install all backend dependencies</h2>
+<p>With <code>(venv)</code> active, from the project root:</p>
 <pre><code>pip install -r requirements.txt</code></pre>
 <p>This reads <code>requirements.txt</code> and installs every package at the exact version this project was built with — no guessing, no version conflicts.</p>
 
@@ -113,7 +128,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60</code></pre>
 
 <div class="warn">Never commit <code>.env</code> to GitHub, never share it, never paste it into a chat — it contains your database password and your JWT signing key.</div>
 
-<h2><span class="step-num">6</span> Run the server</h2>
+<h2><span class="step-num">6</span> Run the backend server</h2>
 <pre><code>uvicorn app.main:app --reload</code></pre>
 <p>You should see:</p>
 <pre><code>Uvicorn running on http://127.0.0.1:8000
@@ -123,14 +138,43 @@ Application startup complete.</code></pre>
 <pre><code>http://127.0.0.1:8000/docs</code></pre>
 <p>This is the interactive API testing page (Swagger UI) — you can register a user, log in, and test every endpoint directly from here.</p>
 
-<h2><span class="step-num">7</span> Quick smoke test</h2>
+<h2><span class="step-num">7</span> Quick backend smoke test</h2>
 <ol>
 <li><code>POST /users/register</code> — create a test user</li>
 <li><code>POST /users/login</code> — log in, copy the <code>access_token</code> from the response</li>
 <li>Click the green <strong>Authorize</strong> button (top of the page) → paste the raw token → Authorize → Close</li>
 <li><code>GET /users/me</code> — should return your user info with a <code>200</code> status</li>
 </ol>
-<p>If all four steps succeed, your setup is fully working end to end.</p>
+<p>If all four steps succeed, your backend is fully working end to end. Leave this server running — keep this terminal open.</p>
+
+<hr>
+
+<div class="section-label">Part 2 — Frontend</div>
+
+<h2><span class="step-num fe">8</span> Install frontend dependencies</h2>
+<p>Open a <strong>second, separate terminal</strong> in VS Code (Terminal → New Terminal) — don't close the one running your backend. Navigate into the frontend folder:</p>
+<pre><code>cd frontend
+npm install</code></pre>
+<p>This reads <code>frontend/package.json</code> and installs every JS package the React app needs (React itself, React Router, Axios, etc.) — the JavaScript equivalent of <code>pip install -r requirements.txt</code>.</p>
+
+<h2><span class="step-num fe">9</span> Run the frontend dev server</h2>
+<p>Still inside the <code>frontend</code> folder:</p>
+<pre><code>npm run dev</code></pre>
+<p>You should see:</p>
+<pre><code>VITE ready
+Local: http://localhost:5173/</code></pre>
+<p>Open that URL in your browser. You should see the StudentSync AI React app running.</p>
+
+<div class="good-box"><strong>You now have two servers running at once, in two separate terminals:</strong>
+<ul>
+<li>Backend (FastAPI) → <code>http://127.0.0.1:8000</code></li>
+<li>Frontend (React) → <code>http://localhost:5173</code></li>
+</ul>
+The React app makes API calls to the backend under the hood — both must be running for the app to actually work.</div>
+
+<h2><span class="step-num fe">10</span> Confirm CORS is working</h2>
+<p>Go to <code>http://localhost:5173/login</code> and log in with a real account (one you registered via <code>/docs</code>, or register a new one). If login succeeds and redirects you to the dashboard, everything — backend, frontend, and the connection between them — is working.</p>
+<p>If you see a network error or a blank failure in the browser console (right-click page → Inspect → Console tab) mentioning "CORS," check that <code>app/main.py</code> has the CORS middleware configured with <code>allow_origins</code> including <code>"http://localhost:5173"</code>.</p>
 
 <hr>
 
@@ -138,18 +182,35 @@ Application startup complete.</code></pre>
 <table>
 <tr><th>Problem</th><th>Fix</th></tr>
 <tr><td><code>python</code> not recognized</td><td>Python wasn't added to PATH during install — reinstall and check that box</td></tr>
+<tr><td><code>node</code> not recognized, or very old version</td><td>Install/update Node.js from nodejs.org, then close and reopen your terminal</td></tr>
 <tr><td><code>venv\Scripts\activate</code> fails with a script-disabled error</td><td>Run <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code> first</td></tr>
-<tr><td><code>ModuleNotFoundError</code> for any package</td><td>Make sure <code>(venv)</code> is active, then rerun <code>pip install -r requirements.txt</code></td></tr>
-<tr><td>Server starts but <code>/docs</code> shows a database error</td><td>Double check <code>DATABASE_URL</code> in <code>.env</code> — no quotes, no extra spaces; also confirm your Neon project is awake (free tier pauses after inactivity)</td></tr>
+<tr><td><code>ModuleNotFoundError</code> for any Python package</td><td>Make sure <code>(venv)</code> is active, then rerun <code>pip install -r requirements.txt</code></td></tr>
+<tr><td>Backend starts but <code>/docs</code> shows a database error</td><td>Double check <code>DATABASE_URL</code> in <code>.env</code> — no quotes, no extra spaces; also confirm your Neon project is awake (free tier pauses after inactivity)</td></tr>
+<tr><td>React app loads but API calls fail / CORS error in console</td><td>Confirm the backend is actually running on port 8000, and that CORS middleware in <code>app/main.py</code> allows <code>http://localhost:5173</code></td></tr>
+<tr><td><code>Failed to resolve import</code> in Vite terminal</td><td>Check the exact file path/casing — JS imports are case-sensitive, same as Python</td></tr>
 <tr><td><code>git clone</code> fails</td><td>Check the repo URL is exactly right and the repo is public (or you have access)</td></tr>
 </table>
 
+<hr>
+
 <h2 style="border:none;">Daily workflow (after setup is done once)</h2>
-<p>Every time you come back to work on the project:</p>
+<p>Every time you come back to work on the project, you need <strong>two terminals open at the same time</strong>:</p>
+
+<div class="two-col">
+<div>
+<h3>Terminal 1 — Backend</h3>
 <pre><code>cd StudentSyncAI
 venv\Scripts\activate
 uvicorn app.main:app --reload</code></pre>
-<p>That's it — no need to reinstall anything unless you pulled new changes that added new dependencies (in that case, rerun <code>pip install -r requirements.txt</code> after pulling).</p>
+</div>
+<div>
+<h3>Terminal 2 — Frontend</h3>
+<pre><code>cd StudentSyncAI\frontend
+npm run dev</code></pre>
+</div>
+</div>
+
+<p>No need to reinstall anything unless you pulled new changes that added new dependencies — in that case, rerun <code>pip install -r requirements.txt</code> (backend) or <code>npm install</code> (frontend) after pulling.</p>
 
 <hr>
 <p class="footer-note">Keep this file up to date as the project grows — if setup steps change, update this guide in the same commit.</p>
