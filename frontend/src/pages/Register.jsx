@@ -27,6 +27,13 @@ function UserIcon() {
     </svg>
   )
 }
+function MailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" />
+    </svg>
+  )
+}
 function LockIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -47,19 +54,19 @@ function EyeIcon({ open }) {
   )
 }
 
-function LoginLogo() {
+function RegisterLogo() {
   return (
     <div className="login-logo">
       <svg className="login-logo-mark" viewBox="0 0 40 40" fill="none">
         <defs>
-          <linearGradient id="loginLogoGrad" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="regLogoGrad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stopColor="var(--accent-1)" />
             <stop offset="1" stopColor="var(--accent-2)" />
           </linearGradient>
         </defs>
-        <circle cx="20" cy="20" r="18" fill="url(#loginLogoGrad)" opacity="0.15" />
+        <circle cx="20" cy="20" r="18" fill="url(#regLogoGrad)" opacity="0.15" />
         <path d="M20 8c-4 0-7 3-7 7 0 2 1 3.5 2.5 4.5C14 21 13 23 13 25c0 3.5 3 6 7 6s7-2.5 7-6c0-2-1-4-2.5-5.5C26 18.5 27 17 27 15c0-4-3-7-7-7z"
-          fill="none" stroke="url(#loginLogoGrad)" strokeWidth="2" />
+          fill="none" stroke="url(#regLogoGrad)" strokeWidth="2" />
       </svg>
       <div className="login-logo-name">
         StudentSync<span className="gradient-text">AI</span>
@@ -68,13 +75,15 @@ function LoginLogo() {
   )
 }
 
-function Login() {
-  const [loginType, setLoginType] = useState('student')
+function Register() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(true)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
@@ -82,25 +91,34 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+
     setLoading(true)
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/users/login', {
+      await axios.post('http://127.0.0.1:8000/users/register', {
+        name: name,
         email: email,
         password: password
       })
 
-      const token = response.data.access_token
-
-      if (rememberMe) {
-        localStorage.setItem('token', token)
-      } else {
-        sessionStorage.setItem('token', token)
-      }
-
-      navigate('/dashboard')
+      setSuccess(true)
+      setTimeout(() => navigate('/login'), 1500)
     } catch (err) {
-      setError('Invalid email or password')
+      if (err.response && err.response.status === 400) {
+        setError('An account with this email already exists')
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -113,17 +131,10 @@ function Login() {
         token: credentialResponse.credential
       })
 
-      const token = response.data.access_token
-
-      if (rememberMe) {
-        localStorage.setItem('token', token)
-      } else {
-        sessionStorage.setItem('token', token)
-      }
-
+      localStorage.setItem('token', response.data.access_token)
       navigate('/dashboard')
     } catch (err) {
-      setError('Google login failed. Please try again.')
+      setError('Google sign up failed. Please try again.')
     }
   }
 
@@ -141,38 +152,37 @@ function Login() {
       </button>
 
       <div className="login-card">
-        <LoginLogo />
+        <RegisterLogo />
 
         <div style={{ textAlign: 'center' }}>
-          <h1 className="login-welcome">Welcome Back 👋</h1>
-          <p className="login-subtitle">Sign in to continue to your dashboard</p>
-        </div>
-
-        <div className="login-tabs">
-          <button
-            type="button"
-            className={`login-tab ${loginType === 'student' ? 'active' : ''}`}
-            onClick={() => setLoginType('student')}
-          >
-            🎓 Student Login
-          </button>
-          <button
-            type="button"
-            className={`login-tab ${loginType === 'admin' ? 'active' : ''}`}
-            onClick={() => setLoginType('admin')}
-          >
-            🛡️ Admin Login
-          </button>
+          <h1 className="login-welcome">Create Account 🚀</h1>
+          <p className="login-subtitle">Start your academic &amp; career journey today</p>
         </div>
 
         {error && <div className="login-error">{error}</div>}
+        {success && (
+          <div className="login-error" style={{ background: 'rgba(34,211,238,0.1)', borderColor: 'rgba(34,211,238,0.3)', color: 'var(--accent-1)' }}>
+            Account created! Redirecting to login...
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
           <div className="login-field">
             <UserIcon />
             <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="login-field">
+            <MailIcon />
+            <input
               type="email"
-              placeholder="Email or Username"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -198,39 +208,46 @@ function Login() {
             </button>
           </div>
 
-          <div className="login-row">
-            <label className="remember-me">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              Remember me
-            </label>
-            <a href="#" className="forgot-link">Forgot Password?</a>
+          <div className="login-field">
+            <LockIcon />
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="eye-btn"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              <EyeIcon open={showConfirmPassword} />
+            </button>
           </div>
 
-          <button type="submit" className="login-submit" disabled={loading}>
-            {loading ? 'Signing in...' : <>→ Login</>}
+          <button type="submit" className="login-submit" disabled={loading} style={{ marginTop: 6 }}>
+            {loading ? 'Creating account...' : <>→ Sign Up</>}
           </button>
         </form>
 
-        <div className="login-divider">or continue with</div>
+        <div className="login-divider">or sign up with</div>
 
         <div className="social-row">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google login failed')}
+            onError={() => setError('Google sign up failed')}
           />
           <button type="button" className="social-btn">🟦 Microsoft</button>
         </div>
 
         <div className="login-footer">
-          Don't have an account? <Link to="/register">Sign up</Link>
+          Already have an account? <Link to="/login">Log in</Link>
         </div>
       </div>
     </div>
   )
 }
 
-export default Login
+export default Register

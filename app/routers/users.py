@@ -7,6 +7,11 @@ from app.auth import verify_token
 from app.database import SessionLocal
 from app import models, schemas
 
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+GOOGLE_CLIENT_ID = "58766295749-ndtv46el8t9aeio60ij5pfrbofqkmlv9.apps.googleusercontent.com"
+
 router = APIRouter(prefix="/users", tags=["Users"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -55,6 +60,35 @@ def login_user(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+@router.post("/google-login")
+def google_login(payload: schemas.GoogleLogin, db: Session = Depends(get_db)):
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            payload.token, google_requests.Request(), GOOGLE_CLIENT_ID
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+
+    email = idinfo["email"]
+    name = idinfo.get("name", email.split("@")[0])
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not user:
+        user = models.User(
+            name=name,
+            email=email,
+            hashed_password=None,
+            oauth_provider="google"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token = create_access_token(data={"user_id": user.id, "role": user.role})
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me")
 def get_current_user(payload:dict =Depends(verify_token), db: Session = Depends(get_db)):

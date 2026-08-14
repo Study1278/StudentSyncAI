@@ -140,3 +140,6 @@ class ExamUpdate(BaseModel):
     title: str | None = None
     exam_date: datetime | None = None
     syllabus: str | None = None
+
+class GoogleLogin(BaseModel):
+    token: str
