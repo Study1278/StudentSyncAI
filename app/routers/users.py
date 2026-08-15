@@ -113,7 +113,7 @@ def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depend
     user = db.query(models.User).filter(models.User.email == request.email).first()
 
     if not user:
-        return {"message": "If that email exists, an OTP has been sent."}
+        raise HTTPException(status_code=404, detail="This email is not registered")
 
     otp_code = str(random.randint(100000, 999999))
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
@@ -132,7 +132,7 @@ def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depend
 
     send_otp_email(request.email, otp_code)
 
-    return {"message": "If that email exists, an OTP has been sent."}
+    return {"message": "OTP sent to your email"}
 
 
 @router.post("/verify-otp")
