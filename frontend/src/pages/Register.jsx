@@ -235,11 +235,12 @@ function Register() {
         <div className="login-divider">or sign up with</div>
 
         <div className="social-row">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google sign up failed')}
-          />
-          <button type="button" className="social-btn">🟦 Microsoft</button>
+          <div className="google-btn-wrap">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google login failed')}
+            />
+          </div>
         </div>
 
         <div className="login-footer">

@@ -143,3 +143,15 @@ class ExamUpdate(BaseModel):
 
 class GoogleLogin(BaseModel):
     token: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class VerifyOTPRequest(BaseModel):
+    email: EmailStr
+    otp_code: str
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp_code: str
+    new_password: str

@@ -218,11 +218,12 @@ function Login() {
         <div className="login-divider">or continue with</div>
 
         <div className="social-row">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google login failed')}
-          />
-          <button type="button" className="social-btn">🟦 Microsoft</button>
+          <div className="google-btn-wrap">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google login failed')}
+            />
+          </div>
         </div>
 
         <div className="login-footer">

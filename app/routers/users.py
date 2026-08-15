@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.auth import create_access_token
 from app.auth import verify_token
+import random
+from datetime import datetime, timedelta, timezone
+from app.email_utils import send_otp_email
 
 from app.database import SessionLocal
 from app import models, schemas
@@ -104,3 +107,70 @@ def get_current_user(payload:dict =Depends(verify_token), db: Session = Depends(
         "email": user.email,
         "role": user.role
     }
+
+@router.post("/forgot-password")
+def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == request.email).first()
+
+    if not user:
+        return {"message": "If that email exists, an OTP has been sent."}
+
+    otp_code = str(random.randint(100000, 999999))
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+    db.query(models.PasswordResetOTP).filter(
+        models.PasswordResetOTP.email == request.email
+    ).delete()
+
+    new_otp = models.PasswordResetOTP(
+        email=request.email,
+        otp_code=otp_code,
+        expires_at=expires_at
+    )
+    db.add(new_otp)
+    db.commit()
+
+    send_otp_email(request.email, otp_code)
+
+    return {"message": "If that email exists, an OTP has been sent."}
+
+
+@router.post("/verify-otp")
+def verify_otp(request: schemas.VerifyOTPRequest, db: Session = Depends(get_db)):
+    record = db.query(models.PasswordResetOTP).filter(
+        models.PasswordResetOTP.email == request.email,
+        models.PasswordResetOTP.otp_code == request.otp_code
+    ).first()
+
+    if not record:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if record.expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="OTP has expired")
+
+    return {"message": "OTP verified"}
+
+
+@router.post("/reset-password")
+def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+    record = db.query(models.PasswordResetOTP).filter(
+        models.PasswordResetOTP.email == request.email,
+        models.PasswordResetOTP.otp_code == request.otp_code
+    ).first()
+
+    if not record:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if record.expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="OTP has expired")
+
+    user = db.query(models.User).filter(models.User.email == request.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.hashed_password = pwd_context.hash(request.new_password)
+
+    db.delete(record)
+    db.commit()
+
+    return {"message": "Password reset successful"}

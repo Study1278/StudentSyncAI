@@ -91,6 +91,18 @@
   margin: 0;
 }
 
+.google-btn-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-btn-wrap > div {
+  width: 100% !important;
+}
+
+
+
 .login-tabs {
   display: flex;
   gap: 6px;
@@ -249,3 +261,64 @@
 }
 .login-footer a { color: var(--accent-2); font-weight: 600; text-decoration: none; }
 .login-footer a:hover { text-decoration: underline; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 520px) {
+  .login-page {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+
+  .login-logo-mark {
+    width: 46px;
+    height: 46px;
+  }
+
+  .login-welcome {
+    font-size: 1.3rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.86rem;
+  }
+
+  .login-tabs {
+    font-size: 0.8rem;
+  }
+
+  .login-tab {
+    padding: 8px 0;
+    font-size: 0.8rem;
+  }
+
+  .login-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .blob-1, .blob-2 {
+    width: 220px;
+    height: 220px;
+  }
+
+  .login-theme-toggle {
+    top: 16px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-card {
+    padding: 24px 16px;
+  }
+
+  .login-welcome {
+    font-size: 1.15rem;
+  }
+}
