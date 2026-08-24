@@ -110,3 +110,17 @@ def delete_assignment(
     db.delete(assignment)
     db.commit()
     return {"detail": "Assignment deleted"}
+
+
+@router.get("/", response_model=list[schemas.AssignmentOut])
+def get_all_my_assignments(
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    assignments = db.query(models.Assignment).join(models.Subject).filter(
+        models.Subject.user_id == user_id
+    ).all()
+
+    return assignments

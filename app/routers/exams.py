@@ -112,6 +112,19 @@ def delete_exam(
     db.commit()
     return {"detail": "Exam deleted"}
 
+
+@router.get("/", response_model=list[schemas.ExamOut])
+def get_all_my_exams(
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+
+    exams = db.query(models.Exam).join(models.Subject).filter(
+        models.Subject.user_id == user_id
+    ).all()
+
+    return exams
         
 
 
