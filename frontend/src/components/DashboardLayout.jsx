@@ -48,6 +48,7 @@ const NAV_ITEMS = [
   { path: '/dashboard', label: '📊 Dashboard' },
   { path: '/subjects', label: '📚 Subjects' },
   { path: '/assignments', label: '📝 Assignments' },
+  { path: '/exams', label: '📅 Exams' },
   { path: '/skills', label: '🎯 Skills' },
   { path: '/internships', label: '💼 Internships' },
 ]
