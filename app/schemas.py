@@ -8,10 +8,14 @@ class UserCreate(BaseModel):
     password : str
 
 class UserOut(BaseModel):
-    id : int
-    name : str
-    email : str
-    role : str
+    id: int
+    name: str
+    email: str
+    role: str
+    avatar_url: str | None
+
+    class Config:
+        from_attributes = True
 
 class Config:
    from_attributes =True
@@ -154,4 +158,12 @@ class VerifyOTPRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
     otp_code: str
+    new_password: str
+
+class UserUpdate(BaseModel):
+    name: str | None = None
+    avatar_url: str | None = None
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
     new_password: str

@@ -93,20 +93,15 @@ def google_login(payload: schemas.GoogleLogin, db: Session = Depends(get_db)):
 
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/me")
-def get_current_user(payload:dict =Depends(verify_token), db: Session = Depends(get_db)):
+@router.get("/me", response_model=schemas.UserOut)
+def get_current_user(payload: dict = Depends(verify_token), db: Session = Depends(get_db)):
     user_id = payload.get("user_id")
-    user = db.query(models.User).filter(models.User.id ==user_id).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return{
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
-        "role": user.role
-    }
+    return user
 
 @router.post("/forgot-password")
 def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
@@ -174,3 +169,48 @@ def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(
     db.commit()
 
     return {"message": "Password reset successful"}
+
+
+@router.patch("/me", response_model=schemas.UserOut)
+def update_profile(
+    updates: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = updates.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(user, field, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/change-password")
+def change_password(
+    request: schemas.ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    payload: dict = Depends(verify_token)
+):
+    user_id = payload.get("user_id")
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.hashed_password:
+        raise HTTPException(status_code=400, detail="This account uses Google sign-in and has no password to change")
+
+    if not pwd_context.verify(request.current_password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+
+    user.hashed_password = pwd_context.hash(request.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully"}
