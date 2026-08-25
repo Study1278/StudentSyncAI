@@ -3,6 +3,8 @@ import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTheme } from '../hooks/useTheme'
 import { GoogleLogin } from '@react-oauth/google'
+import { useMsal } from '@azure/msal-react'
+import { loginRequest } from '../authConfig'
 import './Login.css'
 
 function SunIcon() {
@@ -47,6 +49,17 @@ function EyeIcon({ open }) {
   )
 }
 
+function MicrosoftIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 21 21">
+      <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+      <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+      <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+      <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+    </svg>
+  )
+}
+
 function LoginLogo() {
   return (
     <div className="login-logo">
@@ -78,6 +91,7 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const { instance } = useMsal()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -124,6 +138,29 @@ function Login() {
       navigate('/dashboard')
     } catch (err) {
       setError('Google login failed. Please try again.')
+    }
+  }
+
+  const handleMicrosoftLogin = async () => {
+    setError('')
+    try {
+      const loginResponse = await instance.loginPopup(loginRequest)
+
+      const response = await axios.post('http://127.0.0.1:8000/users/microsoft-login', {
+        token: loginResponse.accessToken
+      })
+
+      const token = response.data.access_token
+
+      if (rememberMe) {
+        localStorage.setItem('token', token)
+      } else {
+        sessionStorage.setItem('token', token)
+      }
+
+      navigate('/dashboard')
+    } catch (err) {
+      setError('Microsoft login failed. Please try again.')
     }
   }
 
@@ -224,6 +261,9 @@ function Login() {
               onError={() => setError('Google login failed')}
             />
           </div>
+          <button type="button" className="microsoft-btn" onClick={handleMicrosoftLogin}>
+            <MicrosoftIcon /> Continue with Microsoft
+          </button>
         </div>
 
         <div className="login-footer">

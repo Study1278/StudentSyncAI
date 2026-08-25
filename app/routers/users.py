@@ -9,7 +9,7 @@ from app.email_utils import send_otp_email
 
 from app.database import SessionLocal
 from app import models, schemas
-
+import httpx
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
@@ -214,3 +214,37 @@ def change_password(
     db.commit()
 
     return {"message": "Password changed successfully"}
+
+@router.post("/microsoft-login")
+def microsoft_login(payload: schemas.MicrosoftLogin, db: Session = Depends(get_db)):
+    graph_resp = httpx.get(
+        "https://graph.microsoft.com/v1.0/me",
+        headers={"Authorization": f"Bearer {payload.token}"}
+    )
+
+    if graph_resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid Microsoft token")
+
+    profile = graph_resp.json()
+    email = profile.get("mail") or profile.get("userPrincipalName")
+    name = profile.get("displayName", email.split("@")[0])
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Could not retrieve email from Microsoft account")
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+
+    if not user:
+        user = models.User(
+            name=name,
+            email=email,
+            hashed_password=None,
+            oauth_provider="microsoft"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token = create_access_token(data={"user_id": user.id, "role": user.role})
+
+    return {"access_token": access_token, "token_type": "bearer"}

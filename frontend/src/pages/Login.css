@@ -313,6 +313,26 @@
   }
 }
 
+.microsoft-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.microsoft-btn:hover {
+  border-color: var(--accent-2);
+}
+
 @media (max-width: 360px) {
   .login-card {
     padding: 24px 16px;
