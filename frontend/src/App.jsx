@@ -8,6 +8,7 @@ import Subjects from "./pages/Subjects";
 import Assignments from "./pages/Assignments";
 import Exams from "./pages/Exams";
 import Skills from "./pages/Skills";
+import AuthRedirect from './pages/AuthRedirect'
 import Internships from "./pages/Internships";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/auth-redirect" element={<AuthRedirect />} />
         <Route
           path="/profile"
           element={

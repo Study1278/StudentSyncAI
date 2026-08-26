@@ -49,17 +49,6 @@ function EyeIcon({ open }) {
   )
 }
 
-function MicrosoftIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 21 21">
-      <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-      <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-      <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-      <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-    </svg>
-  )
-}
-
 function LoginLogo() {
   return (
     <div className="login-logo">
@@ -93,6 +82,15 @@ function Login() {
   const navigate = useNavigate()
   const { instance } = useMsal()
 
+  const storeTokenAndRedirect = (token) => {
+    if (rememberMe) {
+      localStorage.setItem('token', token)
+    } else {
+      sessionStorage.setItem('token', token)
+    }
+    navigate('/dashboard')
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -104,15 +102,7 @@ function Login() {
         password: password
       })
 
-      const token = response.data.access_token
-
-      if (rememberMe) {
-        localStorage.setItem('token', token)
-      } else {
-        sessionStorage.setItem('token', token)
-      }
-
-      navigate('/dashboard')
+      storeTokenAndRedirect(response.data.access_token)
     } catch (err) {
       setError('Invalid email or password')
     } finally {
@@ -127,42 +117,15 @@ function Login() {
         token: credentialResponse.credential
       })
 
-      const token = response.data.access_token
-
-      if (rememberMe) {
-        localStorage.setItem('token', token)
-      } else {
-        sessionStorage.setItem('token', token)
-      }
-
-      navigate('/dashboard')
+      storeTokenAndRedirect(response.data.access_token)
     } catch (err) {
       setError('Google login failed. Please try again.')
     }
   }
 
-  const handleMicrosoftLogin = async () => {
-    setError('')
-    try {
-      const loginResponse = await instance.loginPopup(loginRequest)
-
-      const response = await axios.post('http://127.0.0.1:8000/users/microsoft-login', {
-        token: loginResponse.accessToken
-      })
-
-      const token = response.data.access_token
-
-      if (rememberMe) {
-        localStorage.setItem('token', token)
-      } else {
-        sessionStorage.setItem('token', token)
-      }
-
-      navigate('/dashboard')
-    } catch (err) {
-      setError('Microsoft login failed. Please try again.')
-    }
-  }
+const handleMicrosoftLogin = () => {
+  instance.loginRedirect(loginRequest)
+}
 
   return (
     <div className="login-page">
@@ -244,7 +207,7 @@ function Login() {
               />
               Remember me
             </label>
-              <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+            <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
           </div>
 
           <button type="submit" className="login-submit" disabled={loading}>
@@ -261,10 +224,16 @@ function Login() {
               onError={() => setError('Google login failed')}
             />
           </div>
-          <button type="button" className="microsoft-btn" onClick={handleMicrosoftLogin}>
-            <MicrosoftIcon /> Continue with Microsoft
-          </button>
         </div>
+
+        <button
+          type="button"
+          className="social-btn"
+          onClick={handleMicrosoftLogin}
+          style={{ width: '100%', marginTop: 10 }}
+        >
+          🟦 Continue with Microsoft
+        </button>
 
         <div className="login-footer">
           Don't have an account? <Link to="/register">Sign up</Link>

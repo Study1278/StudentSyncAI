@@ -1,15 +1,14 @@
 export const msalConfig = {
   auth: {
-    clientId: "09c1f4af-d9f4-45fc-8286-aa8f2c5a7702",
-    authority: "https://login.microsoftonline.com/consumers",
-    redirectUri: window.location.origin + "/blank.html",
+    clientId: "a41ef414-100c-4aa4-bf20-19506f1c801d",
+    authority: "https://login.microsoftonline.com/common",
+    redirectUri: "http://localhost:5173/auth-redirect"
   },
   cache: {
-    cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: false,
-  },
+    cacheLocation: "sessionStorage"
+  }
 }
 
 export const loginRequest = {
-  scopes: ["User.Read"],
+  scopes: ["User.Read"]
 }
