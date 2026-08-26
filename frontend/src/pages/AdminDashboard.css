@@ -1,0 +1,156 @@
+.admin-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-left: 4px;
+}
+
+.admin-logout-btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.admin-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.admin-stat-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.admin-stat-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
+.admin-table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.admin-table-wrap h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  padding: 20px 22px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-table td {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.admin-table tr:last-child td { border-bottom: none; }
+
+.role-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.role-tag.admin {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-2);
+}
+
+.admin-delete-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #ef4444;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.admin-delete-btn:hover { border-color: #ef4444; }
+
+@media (max-width: 900px) {
+  .admin-stat-grid { grid-template-columns: repeat(3, 1fr); }
+  .admin-table-wrap { overflow-x: auto; }
+}
+
+@media (max-width: 560px) {
+  .admin-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-content { padding: 20px; }
+}

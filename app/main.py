@@ -3,6 +3,7 @@ from app.database import engine, Base
 from app import models
 from app.routers import subjects, assignments, users, exams, skills, career_goals, internships
 from sqlalchemy import text
+from app.routers import admin
 from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
@@ -10,6 +11,8 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(users.router)
+
+app.include_router(admin.router)
 
 app.include_router(subjects.router)
 

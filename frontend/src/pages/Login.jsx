@@ -71,7 +71,6 @@ function LoginLogo() {
 }
 
 function Login() {
-  const [loginType, setLoginType] = useState('student')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -148,22 +147,7 @@ const handleMicrosoftLogin = () => {
           <p className="login-subtitle">Sign in to continue to your dashboard</p>
         </div>
 
-        <div className="login-tabs">
-          <button
-            type="button"
-            className={`login-tab ${loginType === 'student' ? 'active' : ''}`}
-            onClick={() => setLoginType('student')}
-          >
-            🎓 Student Login
-          </button>
-          <button
-            type="button"
-            className={`login-tab ${loginType === 'admin' ? 'active' : ''}`}
-            onClick={() => setLoginType('admin')}
-          >
-            🛡️ Admin Login
-          </button>
-        </div>
+
 
         {error && <div className="login-error">{error}</div>}
 
@@ -226,14 +210,14 @@ const handleMicrosoftLogin = () => {
           </div>
         </div>
 
-        <button
+        {/*<button
           type="button"
           className="social-btn"
           onClick={handleMicrosoftLogin}
           style={{ width: '100%', marginTop: 10 }}
         >
           🟦 Continue with Microsoft
-        </button>
+        </button>*/}
 
         <div className="login-footer">
           Don't have an account? <Link to="/register">Sign up</Link>

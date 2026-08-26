@@ -1,48 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMsal } from '@azure/msal-react'
 import axios from 'axios'
+import { loginRequest } from '../authConfig'
 
 function AuthRedirect() {
-  const { instance } = useMsal()
+  const { instance, accounts } = useMsal()
   const navigate = useNavigate()
-  const [status, setStatus] = useState('Signing you in...')
 
   useEffect(() => {
-    instance.handleRedirectPromise()
-      .then(async (response) => {
-        if (response && response.accessToken) {
-          try {
-            const backendResponse = await axios.post('http://127.0.0.1:8000/users/microsoft-login', {
-              token: response.accessToken
-            })
-            localStorage.setItem('token', backendResponse.data.access_token)
-            navigate('/dashboard')
-          } catch (err) {
-            // Log the REAL reason instead of failing silently
-            console.error('Microsoft login backend error:', err.response?.data || err.message)
-            setStatus(
-              'Login failed: ' + (err.response?.data?.detail || err.message)
-            )
-            setTimeout(() => navigate('/login'), 2000)
-          }
-        } else {
-          console.warn('handleRedirectPromise() returned no response/accessToken:', response)
-          setStatus('No sign-in response received. Redirecting...')
-          setTimeout(() => navigate('/login'), 2000)
-        }
-      })
-      .catch((err) => {
-        // This catches errors from handleRedirectPromise() itself (MSAL-side failures)
-        console.error('handleRedirectPromise() failed:', err)
-        setStatus('Sign-in error: ' + err.message)
-        setTimeout(() => navigate('/login'), 2000)
-      })
-  }, [instance, navigate])
+    console.log('AuthRedirect mounted. Accounts:', accounts)
+
+    if (accounts.length === 0) {
+      console.log('No accounts found yet.')
+      return
+    }
+
+    const account = accounts[0]
+    console.log('Found account:', account)
+
+    instance.acquireTokenSilent({
+      ...loginRequest,
+      account: account
+    }).then(async (response) => {
+      console.log('Got MS access token:', response.accessToken)
+      try {
+        const backendResponse = await axios.post('http://127.0.0.1:8000/users/microsoft-login', {
+          token: response.accessToken
+        })
+        console.log('Backend responded:', backendResponse.data)
+        localStorage.setItem('token', backendResponse.data.access_token)
+        navigate('/dashboard')
+      } catch (err) {
+        console.error('Backend call failed:', err.response?.data || err.message)
+      }
+    }).catch((err) => {
+      console.error('acquireTokenSilent failed:', err)
+    })
+  }, [accounts, instance, navigate])
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#888' }}>
-      {status}
+      Signing you in...
     </div>
   )
 }

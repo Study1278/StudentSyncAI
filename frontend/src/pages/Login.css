@@ -89,6 +89,7 @@
   color: var(--muted);
   font-size: 0.92rem;
   margin: 0;
+  margin-bottom: 20px;
 }
 
 .google-btn-wrap {

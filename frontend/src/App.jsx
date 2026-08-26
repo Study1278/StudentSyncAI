@@ -12,6 +12,9 @@ import AuthRedirect from './pages/AuthRedirect'
 import Internships from "./pages/Internships";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
+import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
+import AdminProtectedRoute from './components/AdminProtectedRoute'
 
 function App() {
   return (
@@ -22,6 +25,12 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth-redirect" element={<AuthRedirect />} />
+        <Route path="/admin" element={<AdminLogin />} />
+<Route path="/admin/dashboard" element={
+  <AdminProtectedRoute>
+    <AdminDashboard />
+  </AdminProtectedRoute>
+} />
         <Route
           path="/profile"
           element={
