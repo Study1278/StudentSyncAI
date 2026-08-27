@@ -5,20 +5,23 @@ from sqlalchemy.orm import relationship
 import enum
 from sqlalchemy import Enum as SqlEnum
 
+
 class Subject(Base):
-   __tablename__ = "subjects"
+    __tablename__ = "subjects"
 
-   id = Column(Integer, primary_key=True, index=True)
-   user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-   name  = Column (String, nullable=False)
-   code = Column(String, nullable=True)
-   credits = Column(Integer, nullable=True)
-   faculty_name = Column(String, nullable=True)
-   created_at =Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    name = Column(String, nullable=False)
+    code = Column(String, nullable=True)
+    credits = Column(Integer, nullable=True)
+    faculty_name = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-assignments = relationship("Assignment", back_populates="subject", cascade="all, delete-orphan")
-exams = relationship("Exam", back_populates="subject", cascade="all, delete-orphan")
-   
+    assignments = relationship("Assignment", back_populates="subject", cascade="all, delete-orphan")
+    exams = relationship("Exam", back_populates="subject", cascade="all, delete-orphan")
+    owner = relationship("User", back_populates="subjects")
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -31,6 +34,12 @@ class User(Base):
     avatar_url = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    subjects = relationship("Subject", back_populates="owner", cascade="all, delete-orphan")
+    skills = relationship("Skill", back_populates="owner", cascade="all, delete-orphan")
+    career_goals = relationship("CareerGoal", back_populates="owner", cascade="all, delete-orphan")
+    internships = relationship("Internship", back_populates="owner", cascade="all, delete-orphan")
+
+
 class PasswordResetOTP(Base):
     __tablename__ = "password_reset_otps"
 
@@ -42,50 +51,54 @@ class PasswordResetOTP(Base):
 
 
 class Assignment(Base):
-   __tablename__ = "assignments"
-   id = Column(Integer, primary_key=True, index=True)
-   subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
-   title = Column(String, nullable=False)
-   description = Column(String, nullable=True)
-   due_date = Column(DateTime(timezone=True), nullable=True)
-   status = Column(String, default="pending")
-   created_at = Column(DateTime(timezone=True), server_default=func.now())
+    __tablename__ = "assignments"
 
-subject = relationship("Subject", back_populates="assignments")
+    id = Column(Integer, primary_key=True, index=True)
+    subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String, default="pending")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    subject = relationship("Subject", back_populates="assignments")
+
 
 class Exam(Base):
-   __tablename__ = "exams"
-   id = Column(Integer, primary_key=True, index=True)
-   subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
-   title = Column(String, nullable=False)
-   exam_date= Column(DateTime(timezone=True), nullable=False)
-   syllabus= Column(String, nullable=True)
-   created_at = Column(DateTime(timezone=True), server_default=func.now())
+    __tablename__ = "exams"
 
-subject = relationship("Subject", back_populates="exams")
+    id = Column(Integer, primary_key=True, index=True)
+    subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String, nullable=False)
+    exam_date = Column(DateTime(timezone=True), nullable=False)
+    syllabus = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    subject = relationship("Subject", back_populates="exams")
+
 
 class Skill(Base):
-   __tablename__ = "skills"
+    __tablename__ = "skills"
 
-   id = Column(Integer, primary_key=True, index=True)
-   user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-   name= Column(String, nullable=False)
-   proficiency = Column(String, default="beginner")
-   created_at = Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    name = Column(String, nullable=False)
+    proficiency = Column(String, default="beginner")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-   owner = relationship("User")
+    owner = relationship("User", back_populates="skills")
 
 
 class CareerGoal(Base):
     __tablename__ = "career_goals"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     target_role = Column(String, nullable=False)
     description = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    owner = relationship("User")
+    owner = relationship("User", back_populates="career_goals")
 
 
 class ApplicationStatus(str, enum.Enum):
@@ -94,14 +107,15 @@ class ApplicationStatus(str, enum.Enum):
     selected = "selected"
     rejected = "rejected"
 
+
 class Internship(Base):
     __tablename__ = "internships"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     company_name = Column(String, nullable=False)
     role = Column(String, nullable=False)
     status = Column(SqlEnum(ApplicationStatus), default=ApplicationStatus.applied)
     applied_date = Column(DateTime(timezone=True), server_default=func.now())
 
-    owner = relationship("User")
+    owner = relationship("User", back_populates="internships")
