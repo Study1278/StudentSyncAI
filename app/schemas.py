@@ -173,3 +173,8 @@ class ChangePasswordRequest(BaseModel):
 
 class MicrosoftLogin(BaseModel):
     token: str
+
+
+class AdminUserUpdate(BaseModel):
+    name: str | None = None
+    role: str | None = None

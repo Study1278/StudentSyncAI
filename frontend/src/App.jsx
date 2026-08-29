@@ -15,6 +15,13 @@ import Profile from "./pages/Profile";
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
+import AdminUsers from './pages/AdminUsers'
+import AdminSubjects from './pages/AdminSubjects'
+import AdminAssignments from './pages/AdminAssignments'
+import AdminExams from './pages/AdminExams'
+import AdminSkills from './pages/AdminSkills'
+import AdminInternships from './pages/AdminInternships'
+import AdminProfile from './pages/AdminProfile'
 
 function App() {
   return (
@@ -26,11 +33,70 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth-redirect" element={<AuthRedirect />} />
         <Route path="/admin" element={<AdminLogin />} />
-<Route path="/admin/dashboard" element={
-  <AdminProtectedRoute>
-    <AdminDashboard />
-  </AdminProtectedRoute>
-} />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminProtectedRoute>
+              <AdminUsers />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/subjects"
+          element={
+            <AdminProtectedRoute>
+              <AdminSubjects />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/assignments"
+          element={
+            <AdminProtectedRoute>
+              <AdminAssignments />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/exams"
+          element={
+            <AdminProtectedRoute>
+              <AdminExams />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/skills"
+          element={
+            <AdminProtectedRoute>
+              <AdminSkills />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/internships"
+          element={
+            <AdminProtectedRoute>
+              <AdminInternships />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/profile"
+          element={
+            <AdminProtectedRoute>
+              <AdminProfile />
+            </AdminProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={
