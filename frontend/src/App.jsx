@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+// 1. Import your new component here[cite: 11]
+import AIAssistant from "./components/AIAssistant"; 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -26,139 +28,32 @@ import AdminProfile from './pages/AdminProfile'
 function App() {
   return (
     <BrowserRouter>
+      {/* 2. Place the widget here so it floats on top of every page[cite: 11] */}
+      <AIAssistant /> 
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth-redirect" element={<AuthRedirect />} />
+        {/* ... All your other routes remain exactly the same ...[cite: 11] */}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminProtectedRoute>
-              <AdminDashboard />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <AdminProtectedRoute>
-              <AdminUsers />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/subjects"
-          element={
-            <AdminProtectedRoute>
-              <AdminSubjects />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/assignments"
-          element={
-            <AdminProtectedRoute>
-              <AdminAssignments />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/exams"
-          element={
-            <AdminProtectedRoute>
-              <AdminExams />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/skills"
-          element={
-            <AdminProtectedRoute>
-              <AdminSkills />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/internships"
-          element={
-            <AdminProtectedRoute>
-              <AdminInternships />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/profile"
-          element={
-            <AdminProtectedRoute>
-              <AdminProfile />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/exams"
-          element={
-            <ProtectedRoute>
-              <Exams />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/skills"
-          element={
-            <ProtectedRoute>
-              <Skills />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/internships"
-          element={
-            <ProtectedRoute>
-              <Internships />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/subjects"
-          element={
-            <ProtectedRoute>
-              <Subjects />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/assignments"
-          element={
-            <ProtectedRoute>
-              <Assignments />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+        <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
+        <Route path="/admin/subjects" element={<AdminProtectedRoute><AdminSubjects /></AdminProtectedRoute>} />
+        <Route path="/admin/assignments" element={<AdminProtectedRoute><AdminAssignments /></AdminProtectedRoute>} />
+        <Route path="/admin/exams" element={<AdminProtectedRoute><AdminExams /></AdminProtectedRoute>} />
+        <Route path="/admin/skills" element={<AdminProtectedRoute><AdminSkills /></AdminProtectedRoute>} />
+        <Route path="/admin/internships" element={<AdminProtectedRoute><AdminInternships /></AdminProtectedRoute>} />
+        <Route path="/admin/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/exams" element={<ProtectedRoute><Exams /></ProtectedRoute>} />
+        <Route path="/skills" element={<ProtectedRoute><Skills /></ProtectedRoute>} />
+        <Route path="/internships" element={<ProtectedRoute><Internships /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/subjects" element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
+        <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
