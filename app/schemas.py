@@ -71,7 +71,7 @@ class ExamOut(BaseModel):
     subject_id: int
     title: str
     exam_date: datetime |None
-    syllabus:str
+    syllabus: str | None = None
 
     class Config:
         from_attributes = True
